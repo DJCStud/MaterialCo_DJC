@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 06, 2026 at 03:54 PM
+-- Generation Time: Mar 03, 2026 at 03:09 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -36,17 +36,19 @@ CREATE TABLE `inventory` (
   `SIZE` varchar(11) DEFAULT NULL,
   `MODEL` varchar(50) DEFAULT NULL,
   `DATE_ADDED` date NOT NULL DEFAULT current_timestamp(),
-  `IS_ACTIVE` tinyint(1) NOT NULL DEFAULT 1
+  `IS_ACTIVE` tinyint(1) NOT NULL DEFAULT 1,
+  `DESCRIPTION` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `inventory`
 --
 
-INSERT INTO `inventory` (`MATERIAL_ID`, `USER_ID`, `MATERIAL_NAME`, `QUANTITY`, `PRICE`, `SIZE`, `MODEL`, `DATE_ADDED`, `IS_ACTIVE`) VALUES
-(50, 8, 'Brown Cardboard Box', 9, 100, 'Small', 'N/A', '2026-01-02', 1),
-(51, 8, 'clean', 1, 100, NULL, 'N/A', '2026-01-06', 1),
-(52, 8, 'somethings', 1, 100, NULL, 'N/A', '2026-01-06', 1);
+INSERT INTO `inventory` (`MATERIAL_ID`, `USER_ID`, `MATERIAL_NAME`, `QUANTITY`, `PRICE`, `SIZE`, `MODEL`, `DATE_ADDED`, `IS_ACTIVE`, `DESCRIPTION`) VALUES
+(50, 8, 'Brown Cardboard Box', 9, 100, 'Small', 'N/A', '2026-01-02', 1, NULL),
+(51, 8, 'clean', 1, 100, NULL, 'N/A', '2026-01-06', 1, NULL),
+(52, 8, 'somethings', 1, 100, NULL, 'N/A', '2026-01-06', 1, NULL),
+(53, 9, 'Blasted Bricks', 200, 50, NULL, 'N/A', '2026-02-25', 1, NULL);
 
 --
 -- Triggers `inventory`
@@ -76,6 +78,37 @@ CREATE TRIGGER `trg_inventory_insert_stocks_log` AFTER INSERT ON `inventory` FOR
 END
 $$
 DELIMITER ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `members`
+--
+
+CREATE TABLE `members` (
+  `MEMBER_ID` int(11) NOT NULL,
+  `USER_ID` int(11) NOT NULL,
+  `ORGANIZATION_ID` int(11) NOT NULL,
+  `REMARKS` varchar(255) NOT NULL,
+  `DATE_JOINED` datetime NOT NULL DEFAULT current_timestamp(),
+  `IS_ACTIVE` tinyint(1) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `organizations`
+--
+
+CREATE TABLE `organizations` (
+  `ORGANIZATION_ID` int(11) NOT NULL,
+  `USER_ID` int(11) NOT NULL,
+  `NAME` varchar(255) NOT NULL,
+  `ADDRESS` text DEFAULT NULL,
+  `TYPE` varchar(100) DEFAULT NULL,
+  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `IS_ACTIVE` tinyint(1) NOT NULL DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -199,7 +232,8 @@ INSERT INTO `stocks_log` (`STOCKS_ID`, `MATERIAL_NAME`, `USER_ID`, `SOURCE_TABLE
 (26, 'Brown Cardboard Box', 8, 'reservation', 27, 12, 'RESERVE', '2026-01-04 16:02:36'),
 (27, 'Brown Cardboard Box', 8, 'reservation', 27, 12, '', '2026-01-04 17:00:09'),
 (28, 'clean', 8, 'inventory', 51, 1, 'IN', '2026-01-06 12:27:44'),
-(29, 'somethings', 8, 'inventory', 52, 1, 'IN', '2026-01-06 13:29:13');
+(29, 'somethings', 8, 'inventory', 52, 1, 'IN', '2026-01-06 13:29:13'),
+(30, 'Blasted Bricks', 9, 'inventory', 53, 200, 'IN', '2026-02-25 01:14:58');
 
 -- --------------------------------------------------------
 
@@ -219,7 +253,8 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`USER_ID`, `NAME`, `EMAIL`, `PASSWORD`) VALUES
-(8, 'Joseph Mejos', 'Xzilleon2@gmail.com', '$2y$10$oLhAU413PYYlc3FWdQA03OqK3DOtKuq9tepTaEhHiWWcugluyE0tS');
+(8, 'Joseph Mejos', 'Xzilleon2@gmail.com', '$2y$10$oLhAU413PYYlc3FWdQA03OqK3DOtKuq9tepTaEhHiWWcugluyE0tS'),
+(9, 'dan', 'd@gmail.com', '$2y$10$jpsauq4lCk3.lKEknd47weBDYdBbmOvPMerrWKVwCsPKYmHQVlF0K');
 
 --
 -- Indexes for dumped tables
@@ -231,6 +266,21 @@ INSERT INTO `user` (`USER_ID`, `NAME`, `EMAIL`, `PASSWORD`) VALUES
 ALTER TABLE `inventory`
   ADD PRIMARY KEY (`MATERIAL_ID`),
   ADD KEY `fk_inventory_user` (`USER_ID`);
+
+--
+-- Indexes for table `members`
+--
+ALTER TABLE `members`
+  ADD PRIMARY KEY (`MEMBER_ID`),
+  ADD KEY `USER_ID` (`USER_ID`),
+  ADD KEY `ORGANIZATION_ID` (`ORGANIZATION_ID`);
+
+--
+-- Indexes for table `organizations`
+--
+ALTER TABLE `organizations`
+  ADD PRIMARY KEY (`ORGANIZATION_ID`),
+  ADD KEY `USER_ID` (`USER_ID`);
 
 --
 -- Indexes for table `reservation`
@@ -260,7 +310,19 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `inventory`
 --
 ALTER TABLE `inventory`
-  MODIFY `MATERIAL_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `MATERIAL_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+
+--
+-- AUTO_INCREMENT for table `members`
+--
+ALTER TABLE `members`
+  MODIFY `MEMBER_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `organizations`
+--
+ALTER TABLE `organizations`
+  MODIFY `ORGANIZATION_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `reservation`
@@ -272,13 +334,13 @@ ALTER TABLE `reservation`
 -- AUTO_INCREMENT for table `stocks_log`
 --
 ALTER TABLE `stocks_log`
-  MODIFY `STOCKS_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `STOCKS_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `USER_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `USER_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Constraints for dumped tables
@@ -289,6 +351,19 @@ ALTER TABLE `user`
 --
 ALTER TABLE `inventory`
   ADD CONSTRAINT `fk_inventory_user` FOREIGN KEY (`USER_ID`) REFERENCES `user` (`USER_ID`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `members`
+--
+ALTER TABLE `members`
+  ADD CONSTRAINT `members_ibfk_1` FOREIGN KEY (`USER_ID`) REFERENCES `user` (`USER_ID`),
+  ADD CONSTRAINT `members_ibfk_2` FOREIGN KEY (`ORGANIZATION_ID`) REFERENCES `organizations` (`ORGANIZATION_ID`);
+
+--
+-- Constraints for table `organizations`
+--
+ALTER TABLE `organizations`
+  ADD CONSTRAINT `organizations_ibfk_1` FOREIGN KEY (`USER_ID`) REFERENCES `user` (`USER_ID`);
 
 --
 -- Constraints for table `reservation`
