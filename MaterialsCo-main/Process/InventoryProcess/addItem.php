@@ -9,11 +9,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['addBtn'])) {
     $name = filter_var(trim($_POST['materialName']), FILTER_SANITIZE_SPECIAL_CHARS);
     $quantity = filter_var(trim($_POST['materialQuantity']), FILTER_SANITIZE_NUMBER_INT);
     $price = filter_var(trim($_POST['materialPrice']), FILTER_SANITIZE_NUMBER_INT);
-    $model = trim($_POST['materialModel']);
+    $description = trim($_POST['description']);
     $USERID = $_SESSION['USER_ID'];
 
+    // Debug check — now placed after $USERID actually exists
+    if (empty($USERID)) {
+        die("DEBUG: USER_ID is empty at insert time. Session dump: " . print_r($_SESSION, true));
+    }
+
     // Controller
-    $items = new ItemsCntrl($USERID, $name, $quantity, $price, $model);
+    $items = new ItemsCntrl($USERID, $name, $quantity, $price, $description);
 
     // Execute registration
     if(!$items->addItem()){
@@ -23,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST" && isset($_POST['addBtn'])) {
         $_SESSION['InventoryMessageSuccess'] = "INSERT SUCCESSFUL!";
     }
 
-    // Redict after processing
+    // Redirect after processing
     header("Location: ../../Inventory.php");
     exit();
 
